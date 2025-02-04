@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
-    "start": "ts-node-dev src/server.ts",
+    "start": "ts-node src/server.ts",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\""
@@ -15,11 +15,21 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@fastify/env": "^4.3.0",
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^10.0.2",
+    "@fastify/session": "^11.1.0",
+    "@fastify/swagger": "^9.4.2",
+    "@fastify/swagger-ui": "^5.2.1",
+    "@keycloak/keycloak-admin-client": "^26.1.0",
+    "@pinaronu/fp": "^0.7.0-0",
     "dotenv": "^16.4.5",
-    "fastify": "^4.26.2",
+    "fastify": "^5.2.1",
+    "keycloak-connect": "^26.1.1",
     "pino": "^8.19.0",
-    "pino-pretty": "^10.3.1"
+    "pino-pretty": "^10.3.1",
+    "swagger-ui-express": "^5.0.1",
+    "zod-openapi": "^4.2.3",
+    "zod-to-json-schema": "^3.24.1"
   },
   "devDependencies": {
     "@babel/core": "^7.23.0",
