@@ -118,70 +118,83 @@ async function start() {
   const keycloakClient = new KeycloakClient(keycloakConfig);
   
   // Register auth middleware for protected routes
-  app.addHook('preHandler', createAuthMiddleware(keycloakClient));
+  // app.addHook('preHandler', (request, reply, done) => {
+  //   // Skip authentication for Swagger documentation routes
+  //   if (request.url.startsWith('/docs') || request.url.includes('swagger') || request.url.includes('health')) {
+  //     done();
+  //     return;
+  //   }
+  //   // Apply auth middleware for all other routes
+  //   createAuthMiddleware(keycloakClient)(request, reply, done);
+  // });
   
-  // Create a type-safe wrapper for our handlers
-  
-  // API Endpoints
-  app.post(
-    '/users/getUserProfile',
-    createHandler(
-      {
-        body: z.object({
-          userId: z.string().uuid(),
-        }),
-        response: UserSchema,
-      },
-      async (_, body) => {
-        try {
-          // Your actual database query would go here
-          const user: User = {
-            id: body.userId,
-            name: 'John Doe',
-            email: 'john@example.com'
-          };
-          
-          return success(user);
-        } catch (error) {
-          return failure({
-            code: 'USER_NOT_FOUND',
-            message: 'User not found'
-          });
+  // Register all routes under /api prefix
+  app.register(async (fastify) => {
+    // API Endpoints
+    fastify.post(
+      '/users/getUserProfile',
+      createHandler(
+        {
+          body: z.object({
+            userId: z.string().uuid(),
+          }),
+          response: UserSchema,
+        },
+        async (_, body) => {
+          try {
+            // Your actual database query would go here
+            const user: User = {
+              id: body.userId,
+              name: 'John Doe',
+              email: 'john@example.com'
+            };
+            
+            return success(user);
+          } catch (error) {
+            return failure({
+              code: 'USER_NOT_FOUND',
+              message: 'User not found'
+            });
+          }
         }
-      }
-    )
-  );
+      )
+    );
 
-  app.post(
-    '/users/updateUser',
-    createHandler(
-      {
-        body: z.object({
-          userId: z.string().uuid(),
-          name: z.string().min(1).optional(),
-          email: z.string().email().optional(),
-        }),
-        response: UserSchema,
-      },
-      async (_, body) => {
-        try {
-          // Your actual database update would go here
-          const user: User = {
-            id: body.userId,
-            name: body.name ?? 'John Doe',
-            email: body.email ?? 'john@example.com',
-          };
-          
-          return success(user);
-        } catch (error) {
-          return failure({
-            code: 'UPDATE_FAILED',
-            message: 'Failed to update user',
-          });
+    fastify.post(
+      '/users/updateUser',
+      createHandler(
+        {
+          body: z.object({
+            userId: z.string().uuid(),
+            name: z.string().min(1).optional(),
+            email: z.string().email().optional(),
+          }),
+          response: UserSchema,
+        },
+        async (_, body) => {
+          try {
+            // Your actual database update would go here
+            const user: User = {
+              id: body.userId,
+              name: body.name ?? 'John Doe',
+              email: body.email ?? 'john@example.com',
+            };
+            
+            return success(user);
+          } catch (error) {
+            return failure({
+              code: 'UPDATE_FAILED',
+              message: 'Failed to update user',
+            });
+          }
         }
-      }
-    )
-  );
+      )
+    );
+
+    fastify.get('/health', (_, reply) => {
+      return reply.send({ status: 'ok' });
+    });
+  }, { prefix: '/api' });
   
   // Error Handler
   app.setErrorHandler((error, _, reply) => {
@@ -192,8 +205,8 @@ async function start() {
     
     reply.status(500).send(result);
   });
-  
-  await app.listen({ port: 3000 });
+
+  await app.listen({ port: process.env.PORT ? parseInt(process.env.PORT) : 3500, host: '0.0.0.0' });
 }
 
 start();

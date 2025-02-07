@@ -3,7 +3,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { KeycloakClient } from '../auth/keycloak-client';
 
 export const createAuthMiddleware = (keycloakClient: KeycloakClient) => {
-  return async (request: FastifyRequest, reply: FastifyReply) => {
+  return async (request: FastifyRequest, reply: FastifyReply, done: () => void) => {
 
     const authHeader = request.headers.authorization;
     if (!authHeader) {
@@ -21,6 +21,7 @@ export const createAuthMiddleware = (keycloakClient: KeycloakClient) => {
 
     switch (token.kind) { 
       case 'success':
+        done();
         break;
       case 'failure':
         return reply.status(401).send({
